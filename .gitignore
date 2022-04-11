@@ -3,6 +3,7 @@
 
 # Venv folder
 venv/
+env/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -41,3 +42,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# Data directories
+labels/
+photos/

@@ -1,0 +1,1 @@
+Placeholder for .xml files containing objects' coordinates.
