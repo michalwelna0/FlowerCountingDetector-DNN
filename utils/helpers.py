@@ -29,6 +29,7 @@ class XMLParser(object):
         files = os.listdir(self.label_path)
         print("Creating annotation database...")
         dct = {}
+        files = [file for file in files if file.endswith(".xml")]
         for file in files:
             filepath = self.label_path / file
             dct[filepath.stem] = self._get_coord_from_xml(filepath)
@@ -54,6 +55,7 @@ class ImageUtils(object):
     def _create_db(self) -> Dict[str, np.ndarray]:
         files = os.listdir(self.image_path)
         print("Creating image database...")
+        files = [file for file in files if file.endswith(".JPG")]
         dct = {}
         for file in files:
             filepath = self.image_path / file
@@ -71,11 +73,25 @@ class ImageUtils(object):
         for xmin, ymin, xmax, ymax in self.parser.get_annotation(file):
             cv2.rectangle(img, (xmin, ymin), (xmax, ymax), (255, 0, 0), 3)
 
+    def resize_db(self, new_x: int, new_y: int) -> None:
+        print("Resizing database...")
+        for (key, image), (_, label) in zip(self.img_database.items(), self.parser.coords.items()):
+            old_x, old_y, _ = image.shape
+            ratio_x = new_x/old_x
+            ratio_y = new_y/old_y
+            self.img_database[key] = cv2.resize(image, (new_x, new_y))
+            for lst in label:
+                for i in range(len(lst)):
+                    if i % 2 != 0:
+                        lst[i] = int(lst[i] * ratio_x)
+                    else:
+                        lst[i] = int(lst[i] * ratio_y)
+
 
 if __name__ == '__main__':
     # Example of usage
     filename = 'DSC06475'
     IU = ImageUtils()
+    IU.resize_db(1024, 1024)
     IU.draw_bboxes(IU.img_database[filename], filename)
     IU.plot_image(IU.img_database[filename])
-
