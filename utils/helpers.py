@@ -222,7 +222,7 @@ class ImageUtils(object):
         with open(self.parser.label_path_txt) as f:
             original = f.read()
 
-        data = augmented + original
+        data = original + augmented
         with open(self.all_labels, 'w') as f:
             f.write(data)
 
