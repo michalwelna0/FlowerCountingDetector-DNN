@@ -1,0 +1,1 @@
+Placeholder for directory containing images and labels ready to learning process.
