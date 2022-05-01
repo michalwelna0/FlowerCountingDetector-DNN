@@ -62,7 +62,7 @@ class XMLParser(object):
                     converted_list = [str(float(element)) for element in lst]
                     to_write += ','.join(converted_list)
                     to_write += f',{self.get_classes().index(classname)} '
-                f.write(to_write)
+                f.write(to_write[:-1])
                 f.write('\n')
         f.close()
 
@@ -205,7 +205,7 @@ class ImageUtils(object):
             coords_update = []
             for i in range(len(boxes)):
                 list_file.write(" " + ",".join([str(a) for a in boxes[i][0:4]]) +
-                                f',{self.parser.get_classes().index(self.parser.coords[base_img][i][1])} ')
+                                f',{self.parser.get_classes().index(self.parser.coords[base_img][i][1])}')
                 coords_update.append(((boxes[i].astype(int)).tolist()[:4], self.parser.coords[base_img][i][1]))
 
             # Update database of images and labels
@@ -222,7 +222,7 @@ class ImageUtils(object):
         with open(self.parser.label_path_txt) as f:
             original = f.read()
 
-        data = augmented + original
+        data = original + augmented
         with open(self.all_labels, 'w') as f:
             f.write(data)
 
@@ -247,14 +247,14 @@ class ImageUtils(object):
 
 if __name__ == '__main__':
     # Example of usage
-    filename = 'DSC06475'
+    # filename = 'DSC06475'
     # Create object of ImageUtilsClass
     IU = ImageUtils()
     # Resize original files into size suitable for NN
     IU.resize_db(416, 416)
     # For debugging purposes you can show bounding boxes on resized image
-    IU.draw_bboxes(IU.img_database[filename], filename)
-    IU.plot_image(IU.img_database[filename])
+    # IU.draw_bboxes(IU.img_database[filename], filename)
+    # IU.plot_image(IU.img_database[filename])
     # Perform augmentation process
     IU.augment_data()
     '''
