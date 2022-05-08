@@ -8,13 +8,13 @@ from scipy import ndimage
 import random
 from typing import List, Dict, Tuple
 
-LABEL_PATH = Path("../labels")
-IMAGE_PATH = Path("../photos")
-LABEL_PATH_TXT = Path("../data/labels.txt")
-LABELS_AUGMENTED_PATH = Path("../data/labels_aug.txt")
-CLASSES_PATH = Path("../data/classes.txt")
-ALL_LABELS_PATH = Path("../ready2learn/labels.txt")
-ALL_IMAGES_PATH = Path("../ready2learn/images")
+LABEL_PATH = Path("labels")
+IMAGE_PATH = Path("photos")
+LABEL_PATH_TXT = Path("data/labels.txt")
+LABELS_AUGMENTED_PATH = Path("data/labels_aug.txt")
+CLASSES_PATH = Path("data/classes.txt")
+ALL_LABELS_PATH = Path("ready2learn/labels.txt")
+ALL_IMAGES_PATH = Path("ready2learn/images")
 
 
 class XMLParser(object):
