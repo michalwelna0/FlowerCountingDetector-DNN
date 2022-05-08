@@ -53,7 +53,7 @@ def evaluate_model(model_path, metrics, img_path):
     model = Yolov4(weight_path="NN/yolov4.weights",
                    class_name_path=CLASS_NAME_PATH)
 
-    model.load_model("trained_500_epochs")
+    model.load_model(model_path)
 
     if metrics:
         model.export_gt(annotation_path=LABELS_PATH, gt_folder_path=gt_folder)
