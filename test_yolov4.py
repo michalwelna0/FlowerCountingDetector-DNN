@@ -3,12 +3,18 @@ from yolo_package.models import Yolov4
 from utils.helpers import ImageUtils
 from pathlib import Path
 import argparse
+import cv2
 
 WEIGHTS_PATH = Path("NN/yolov4.weights")
 FOLDER_PATH = Path("ready2learn/images")
 CLASS_NAME_PATH = Path("data/classes.txt")
 TEST_IMG_PATH = Path("ready2learn/images/DSC06872.JPG")
 LABELS_PATH = Path("ready2learn/labels.txt")
+
+gt_folder = Path('fruits_dataset/gt')
+pred_folder = Path('fruits_dataset/pred')
+temp_folder = Path('fruits_dataset/temp')
+output_folder = Path('fruits_dataset/output')
 
 
 def train_model(epochs, aug, test_size, save_path):
@@ -42,8 +48,25 @@ def train_model(epochs, aug, test_size, save_path):
     model.save_model(save_path)
 
 
-def evaluate_model(args):
+def evaluate_model(model_path, metrics, img_path):
     print("Loading model...")
+    model = Yolov4(weight_path="NN/yolov4.weights",
+                   class_name_path=CLASS_NAME_PATH)
+
+    model.load_model("trained_500_epochs")
+
+    if metrics:
+        model.export_gt(annotation_path=LABELS_PATH, gt_folder_path=gt_folder)
+
+        model.export_prediction(annotation_path=str(LABELS_PATH), pred_folder_path=pred_folder,
+                                img_folder_path=FOLDER_PATH, bs=5)
+
+        model.eval_map(gt_folder_path="fruits_dataset/gt", pred_folder_path='fruits_dataset/pred',
+                       temp_json_folder_path='fruits_dataset/temp',
+                       output_files_path='fruits_dataset/output')
+    img = cv2.imread(filename=str(img_path))
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    model.predict_img(img)
 
 
 parser = argparse.ArgumentParser()
@@ -57,9 +80,10 @@ train.add_argument('--save', help='path to save model', type=str, default='model
 train.add_argument('--augmentation', help='add augmentation (YES or NO)', type=str, default='YES')
 train.add_argument('--test_size', help='ratio of photos in test set', type=float, default=0.1)
 
-evaluate.add_argument('--model_path', help='path to pretrained model', type=str, required=True)
-evaluate.add_argument('--metrics', help='show calculated metrics (YES or NO)', type=str, default='YES')
-evaluate.add_argument('--img_path', help='path to test image', type=str, default=TEST_IMG_PATH)
+evaluate.add_argument('--model_path', help='path to pretrained model', type=str, required=True,
+                      default='trained_500_epochs')
+evaluate.add_argument('--metrics', help='show calculated metrics (YES or NO)', type=str, required=False, default='YES')
+evaluate.add_argument('--img_path', help='path to test image', type=str, required=False, default=TEST_IMG_PATH)
 args = parser.parse_args()
 
 if args.command == 'train':
@@ -67,7 +91,7 @@ if args.command == 'train':
     train_model(args.epochs, args.augmentation, args.test_size, args.save)
 elif args.command == 'evaluate':
     print('Evaluate model')
-    # evaluate_model(args)
+    evaluate_model(args.model_path, args.metrics, args.img_path)
     pass
 else:
     print('No argument passed')
