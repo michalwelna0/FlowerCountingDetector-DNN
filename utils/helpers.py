@@ -79,8 +79,8 @@ class ImageUtils(object):
         self.last_image_nr = 7070
         self.img_database: Dict[str, np.ndarray] = self._create_db()
         self.parser = XMLParser()
-        if not os.path.exists(Path("../ready2learn")):
-            os.makedirs(Path("../ready2learn"))
+        if not os.path.exists(Path("ready2learn")):
+            os.makedirs(Path("ready2learn"))
         if not os.path.exists(self.all_images):
             os.makedirs(self.all_images)
 
@@ -249,14 +249,14 @@ if __name__ == '__main__':
     # Example of usage
     # filename = 'DSC06475'
     # Create object of ImageUtilsClass
-    IU = ImageUtils()
+    # IU = ImageUtils()
     # Resize original files into size suitable for NN
-    IU.resize_db(416, 416)
+    # IU.resize_db(416, 416)
     # For debugging purposes you can show bounding boxes on resized image
     # IU.draw_bboxes(IU.img_database[filename], filename)
     # IU.plot_image(IU.img_database[filename])
     # Perform augmentation process
-    IU.augment_data()
+    # IU.augment_data()
     '''
     Above instructions save images and labels to directory ready2learn.
     You can now use them in learning process.

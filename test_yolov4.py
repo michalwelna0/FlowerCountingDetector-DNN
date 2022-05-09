@@ -89,7 +89,7 @@ train.add_argument('--save', help='path to save model', type=str, default='model
 train.add_argument('--augmentation', help='add augmentation (YES or NO)', type=str, default='YES')
 train.add_argument('--test_size', help='ratio of photos in test set', type=float, default=0.1)
 
-evaluate.add_argument('--model_path', help='path to pretrained model', type=str, required=True,
+evaluate.add_argument('--model_path', help='path to pretrained model', type=str, required=False,
                       default='trained_500_epochs')
 evaluate.add_argument('--metrics', help='show calculated metrics (YES or NO)', type=str, required=False, default='YES')
 evaluate.add_argument('--img_path', help='path to test image', type=str, required=False, default=TEST_IMG_PATH)
