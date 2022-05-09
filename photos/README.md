@@ -1,1 +1,0 @@
-Placeholder for photos - put them here
