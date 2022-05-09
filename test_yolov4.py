@@ -1,3 +1,4 @@
+import tensorflow as tf
 from yolo_package.utils import DataGenerator, read_annotation_lines
 from yolo_package.models import Yolov4
 from utils.helpers import ImageUtils
@@ -17,7 +18,7 @@ temp_folder = Path('fruits_dataset/temp')
 output_folder = Path('fruits_dataset/output')
 
 
-def train_model(epochs, aug, test_size, save_path):
+def train_model(epochs, device, aug, test_size, save_path):
     IU = ImageUtils()
     IU.resize_db(416, 416)
     if aug == 'YES':
@@ -37,12 +38,20 @@ def train_model(epochs, aug, test_size, save_path):
 
     model = Yolov4(weight_path=str(WEIGHTS_PATH),
                    class_name_path=CLASS_NAME_PATH)
-
-    model.fit(data_gen_train,
-              initial_epoch=0,
-              epochs=epochs,
-              val_data_gen=data_gen_val,
-              callbacks=[])
+    if device == "CPU":
+        with tf.device('/CPU:0'):
+            model.fit(data_gen_train,
+                      initial_epoch=0,
+                      epochs=epochs,
+                      val_data_gen=data_gen_val,
+                      callbacks=[])
+    else:
+        with tf.device('/device:GPU:0'):
+            model.fit(data_gen_train,
+                      initial_epoch=0,
+                      epochs=epochs,
+                      val_data_gen=data_gen_val,
+                      callbacks=[])
 
     print("Saving model...")
     model.save_model(save_path)
@@ -88,39 +97,10 @@ args = parser.parse_args()
 
 if args.command == 'train':
     print('Run fruit detector')
-    train_model(args.epochs, args.augmentation, args.test_size, args.save)
+    train_model(args.epochs, args.device, args.augmentation, args.test_size, args.save)
 elif args.command == 'evaluate':
     print('Evaluate model')
     evaluate_model(args.model_path, args.metrics, args.img_path)
     pass
 else:
     print('No argument passed')
-
-# from yolo_package.utils import DataGenerator, read_annotation_lines
-# from yolo_package.models import Yolov4
-# from pathlib import Path
-#
-# train_lines, val_lines = read_annotation_lines(
-#     Path("ready2learn/labels.txt"),
-#     test_size=0.1)
-#
-# FOLDER_PATH = Path("ready2learn/images")
-# class_name_path = Path("data/classes.txt")
-#
-# data_gen_train = DataGenerator(train_lines,
-#                                class_name_path,
-#                                FOLDER_PATH)
-# data_gen_val = DataGenerator(val_lines,
-#                              class_name_path,
-#                              FOLDER_PATH)
-#
-# model = Yolov4(weight_path="NN/yolov4.weights",
-#                class_name_path=class_name_path)
-#
-# model.fit(data_gen_train,
-#           initial_epoch=0,
-#           epochs=2,
-#           val_data_gen=data_gen_val,
-#           callbacks=[])
-#
-# model.save_model("trained_2_epochs")
