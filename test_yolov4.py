@@ -7,6 +7,7 @@ from utils.helpers import ImageUtils
 from pathlib import Path
 import argparse
 import cv2
+import os
 
 WEIGHTS_PATH = Path("NN/yolov4.weights")
 FOLDER_PATH = Path("ready2learn/images")
@@ -14,10 +15,24 @@ CLASS_NAME_PATH = Path("data/classes.txt")
 TEST_IMG_PATH = Path("ready2learn/images/DSC06872.JPG")
 LABELS_PATH = Path("ready2learn/labels.txt")
 
+if not os.path.exists('fruits_dataset'):
+    os.makedirs('fruits_dataset')
+
 gt_folder = Path('fruits_dataset/gt')
+if not os.path.exists(gt_folder):
+    os.makedirs(gt_folder)
+
 pred_folder = Path('fruits_dataset/pred')
+if not os.path.exists(pred_folder):
+    os.makedirs(pred_folder)
+
 temp_folder = Path('fruits_dataset/temp')
+if not os.path.exists(temp_folder):
+    os.makedirs(temp_folder)
+
 output_folder = Path('fruits_dataset/output')
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
 
 
 ## Function responsible for model training
