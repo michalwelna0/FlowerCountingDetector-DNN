@@ -90,6 +90,7 @@ class ImageUtils(object):
             img = cv2.imread(str(path))
             return img
 
+    ## Function that create database in given path
     def _create_db(self) -> Dict[str, np.ndarray]:
         files = os.listdir(self.image_path)
         print("Creating image database...")
@@ -100,6 +101,8 @@ class ImageUtils(object):
             dct[filepath.stem] = self._read_image(filepath)
         return dct
 
+    ## Function that plot image with BGR to RGB change
+    # @param img image where bounding boxes will be drawn
     @staticmethod
     def plot_image(img: np.ndarray) -> None:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -108,6 +111,9 @@ class ImageUtils(object):
         plt.axis("off")
         plt.show()
 
+    ## Function draw bounding boxes on given image
+    # @param img image where bounding boxes will be drawn
+    # @param file list of coordinates
     def draw_bboxes(self, img: np.ndarray, file: str) -> None:
         if img.shape[0] > 999:
             thickness = 3
@@ -116,8 +122,11 @@ class ImageUtils(object):
         for xmin, ymin, xmax, ymax in self.parser.get_annotation(file):
             cv2.rectangle(img, (xmin, ymin), (xmax, ymax), (0, 0, 255), thickness)
 
+    ## Function that perform rotation of point in Euclidean space
+    # @param points coordinates point
+    # @param angle the angle of rotation
     @staticmethod
-    def _rotate_point(points, angle):
+    def _rotate_point(points: List[List[int]], angle: float):
         rot_points = []
         ox = 208
         oy = 208
@@ -129,7 +138,10 @@ class ImageUtils(object):
             rot_points.append([int(px), int(py)])
         return rot_points
 
-    def _txt_rotation(self, boxes, angle):
+    ## Function that perform rotation on bounding box coordinates
+    # @param boxes coordinates of bounding boxes
+    # @param angle the angle of rotation
+    def _txt_rotation(self, boxes: List[List[float]], angle):
         for i in range(len(boxes)):
             p1 = [boxes[i][0], boxes[i][1]]
             p2 = [boxes[i][2], boxes[i][3]]
@@ -138,6 +150,9 @@ class ImageUtils(object):
             boxes[i][2:4] = tab_pt[1]
         return boxes
 
+    ## Function that perform flip on bounding box coordinates
+    # @param boxes coordinates of bounding boxes
+    # @param type_of_flip one of the flip types for cv2
     @staticmethod
     def _txt_flip(boxes, type_of_flip):
         ox = 208
@@ -145,23 +160,26 @@ class ImageUtils(object):
         for i in range(len(boxes)):
             if type_of_flip == -1:
                 boxes[i][0], boxes[i][1], boxes[i][2], boxes[i][3] = \
-                    2*(ox-boxes[i][2]) + boxes[i][2], 2*(ox-boxes[i][3]) + boxes[i][3], \
-                    2*(ox-boxes[i][0]) + boxes[i][0], 2*(ox-boxes[i][1]) + boxes[i][1]
+                    2 * (ox - boxes[i][2]) + boxes[i][2], 2 * (ox - boxes[i][3]) + boxes[i][3], \
+                    2 * (ox - boxes[i][0]) + boxes[i][0], 2 * (ox - boxes[i][1]) + boxes[i][1]
             if type_of_flip == 0:
                 boxes[i][0], boxes[i][1], boxes[i][2], boxes[i][3] = \
-                    boxes[i][0], 2*(ox-boxes[i][3]) + boxes[i][3], boxes[i][2], 2*(ox-boxes[i][1]) + boxes[i][1]
+                    boxes[i][0], 2 * (ox - boxes[i][3]) + boxes[i][3], boxes[i][2], 2 * (ox - boxes[i][1]) + boxes[i][1]
             if type_of_flip == 1:
                 boxes[i][0], boxes[i][1], boxes[i][2], boxes[i][3] = \
-                    2*(ox-boxes[i][2]) + boxes[i][2], boxes[i][1], 2*(ox-boxes[i][0]) + boxes[i][0], boxes[i][3]
+                    2 * (ox - boxes[i][2]) + boxes[i][2], boxes[i][1], 2 * (ox - boxes[i][0]) + boxes[i][0], boxes[i][3]
 
         return boxes
 
+    ## Function which takes the labels saved in txt and strip them
     def _read_txt_to_list(self):
         with open(self.parser.label_path_txt) as f:
             content = f.readlines()
         content = [x.strip() for x in content]
         return content
 
+    ## Function that take the database and perform randomly chosen types of data augmentation
+    #  The result images are stored in the given path from constructor
     def augment_data(self):
         line = self._read_txt_to_list()
         nr_iter = 0
@@ -226,12 +244,15 @@ class ImageUtils(object):
         with open(self.all_labels, 'w') as f:
             f.write(data)
 
+    ## Function that take the database and resize all images
+    # @param new_x new size of image for x-axis
+    # @param new_y new size of image for y-axis
     def resize_db(self, new_x: int, new_y: int) -> None:
         print("Resizing database...")
         for (key, image), (_, label) in zip(self.img_database.items(), self.parser.coords.items()):
             old_x, old_y, _ = image.shape
-            ratio_x = new_x/old_x
-            ratio_y = new_y/old_y
+            ratio_x = new_x / old_x
+            ratio_y = new_y / old_y
             self.img_database[key] = cv2.resize(image, (new_x, new_y))
             path_to_save = self.all_images / (key + '.JPG')
             cv2.imwrite(str(path_to_save), self.img_database[key])
