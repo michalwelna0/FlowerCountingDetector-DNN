@@ -20,12 +20,12 @@ temp_folder = Path('fruits_dataset/temp')
 output_folder = Path('fruits_dataset/output')
 
 
-## Function responsible for model train
-# @param epochs value of epochs
+## Function responsible for model training
+# @param epochs number of epochs
 # @param device type of device
 # @param aug if train with augmentation
-# @param test_size test size in float number
-# @param save_path path to saved model
+# @param test_size ratio of test size
+# @param save_path path where model will be saved
 def train_model(epochs: int, device: str, aug: str, test_size: float, save_path: str):
     IU = ImageUtils()
     IU.resize_db(416, 416)
@@ -65,7 +65,7 @@ def train_model(epochs: int, device: str, aug: str, test_size: float, save_path:
     model.save_model(save_path)
 
 
-## Function responsible for model evaluate
+## Function responsible for model evaluation
 # @param model_path path to model
 # @param metrics yes or no for metrics visualization
 # @param img_path path to example photo
@@ -113,6 +113,5 @@ if args.command == 'train':
 elif args.command == 'evaluate':
     print('Evaluate model')
     evaluate_model(args.model_path, args.metrics, args.img_path)
-    pass
 else:
     print('No argument passed')

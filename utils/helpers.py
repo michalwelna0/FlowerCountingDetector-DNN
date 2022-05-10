@@ -20,6 +20,7 @@ CLASSES_PATH = Path("data/classes.txt")
 ALL_LABELS_PATH = Path("ready2learn/labels.txt")
 ALL_IMAGES_PATH = Path("ready2learn/images")
 
+
 ## Class responsible for handling xml operations
 class XMLParser(object):
     ## Class constructor that initialize class with params given in scope of file
@@ -29,7 +30,7 @@ class XMLParser(object):
         self.classes_path = CLASSES_PATH
         self.coords: Dict[str, List[Tuple[List[int], str]]] = self._create_annotations()
 
-    ## Function that take bounding box coordination from xml file
+    ## Function that takes bounding boxes coordinations and labels from xml file and writes into list
     # @param path path to file with bounding box coordinates
     @staticmethod
     def _get_coord_from_xml(path: Path) -> List[Tuple[List[int], str]]:
@@ -45,7 +46,7 @@ class XMLParser(object):
                 coords.append([int(it.text) for it in bbox])
             return [(coord, label) for coord, label in zip(coords, labels)]
 
-    ## Function that return annotation as dictionary
+    ## Function that returns annotation as dictionary
     def _create_annotations(self) -> Dict[str, List[Tuple[List[int], str]]]:
         files = os.listdir(self.label_path)
         print("Creating annotation database...")
@@ -56,14 +57,14 @@ class XMLParser(object):
             dct[filepath.stem] = self._get_coord_from_xml(filepath)
         return dct
 
-    ## Function that create list of classes from file in txt
+    ## Function that creates list of classes from text file
     def get_classes(self) -> List[str]:
         with open(self.classes_path) as f:
             class_names = f.readlines()
         class_names = [c.strip() for c in class_names]
         return class_names
 
-    ## Function that create txt annotation file
+    ## Function that creates txt annotation file
     def create_txt_annotation_file(self) -> None:
         with open(self.label_path_txt, 'w') as f:
             for key, coord_lists in self.coords.items():
@@ -76,7 +77,7 @@ class XMLParser(object):
                 f.write('\n')
         f.close()
 
-    ## Function that create list of coordinates from Dict
+    ## Function that returns list of bounding boxes coordinates
     # @param img image name
     def get_annotation(self, img: str) -> List[List[int]]:
         return [coord for coord, _ in self.coords[img]]
@@ -84,7 +85,7 @@ class XMLParser(object):
 
 ## Class responsible for operation on photos database and coordinates of bounding boxes
 class ImageUtils(object):
-    ## Class constructor that initialize class with params given in scope of file
+    ## Class constructor that initializes class with params given in scope of file
     def __init__(self):
         self.image_path = IMAGE_PATH
         self.all_images = ALL_IMAGES_PATH
@@ -98,7 +99,7 @@ class ImageUtils(object):
         if not os.path.exists(self.all_images):
             os.makedirs(self.all_images)
 
-    ## Function that read image from given path
+    ## Function that reads image from given path
     # @param path path to image
     @staticmethod
     def _read_image(path: Path) -> np.ndarray:
@@ -106,7 +107,7 @@ class ImageUtils(object):
             img = cv2.imread(str(path))
             return img
 
-    ## Function that create database in given path
+    ## Function that creates image database
     def _create_db(self) -> Dict[str, np.ndarray]:
         files = os.listdir(self.image_path)
         print("Creating image database...")
@@ -117,8 +118,8 @@ class ImageUtils(object):
             dct[filepath.stem] = self._read_image(filepath)
         return dct
 
-    ## Function that plot image with BGR to RGB change
-    # @param img image where bounding boxes will be drawn
+    ## Function that plots RGB image
+    # @param img image to be shown
     @staticmethod
     def plot_image(img: np.ndarray) -> None:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -127,9 +128,9 @@ class ImageUtils(object):
         plt.axis("off")
         plt.show()
 
-    ## Function draw bounding boxes on given image
+    ## Function that draws bounding boxes on given image
     # @param img image where bounding boxes will be drawn
-    # @param file list of coordinates
+    # @param file
     def draw_bboxes(self, img: np.ndarray, file: str) -> None:
         if img.shape[0] > 999:
             thickness = 3
@@ -138,8 +139,8 @@ class ImageUtils(object):
         for xmin, ymin, xmax, ymax in self.parser.get_annotation(file):
             cv2.rectangle(img, (xmin, ymin), (xmax, ymax), (0, 0, 255), thickness)
 
-    ## Function that perform rotation of point in Euclidean space
-    # @param points coordinates point
+    ## Function that performs rotation of point in Euclidean space
+    # @param points coordinates points
     # @param angle the angle of rotation
     @staticmethod
     def _rotate_point(points: List[List[float]], angle: float) -> List[List[float]]:
@@ -154,7 +155,7 @@ class ImageUtils(object):
             rot_points.append([int(px), int(py)])
         return rot_points
 
-    ## Function that perform rotation on bounding box coordinates
+    ## Function that performs rotation on bounding box coordinates
     # @param boxes coordinates of bounding boxes
     # @param angle the angle of rotation
     def _txt_rotation(self, boxes: List[List[float]], angle) -> List[List[float]]:
@@ -166,7 +167,7 @@ class ImageUtils(object):
             boxes[i][2:4] = tab_pt[1]
         return boxes
 
-    ## Function that perform flip on bounding box coordinates
+    ## Function that performs flip on bounding box coordinates
     # @param boxes coordinates of bounding boxes
     # @param type_of_flip one of the flip types for cv2
     @staticmethod
@@ -194,7 +195,7 @@ class ImageUtils(object):
         content = [x.strip() for x in content]
         return content
 
-    ## Function that take the database and perform randomly chosen types of data augmentation
+    ## Function that takes the database and performs randomly chosen types of data augmentation
     #  The result images are stored in the given path from constructor
     def augment_data(self) -> None:
         line = self._read_txt_to_list()
@@ -260,7 +261,7 @@ class ImageUtils(object):
         with open(self.all_labels, 'w') as f:
             f.write(data)
 
-    ## Function that take the database and resize all images
+    ## Function that takes the database and resize all images
     # @param new_x new size of image for x-axis
     # @param new_y new size of image for y-axis
     def resize_db(self, new_x: int, new_y: int) -> None:
