@@ -1,3 +1,5 @@
+## @package main
+# Module responsible for handling main site of program
 import tensorflow as tf
 from yolo_package.utils import DataGenerator, read_annotation_lines
 from yolo_package.models import Yolov4
@@ -18,7 +20,13 @@ temp_folder = Path('fruits_dataset/temp')
 output_folder = Path('fruits_dataset/output')
 
 
-def train_model(epochs, device, aug, test_size, save_path):
+## Function responsible for model train
+# @param epochs value of epochs
+# @param device type of device
+# @param aug if train with augmentation
+# @param test_size test size in float number
+# @param save_path path to saved model
+def train_model(epochs: int, device: str, aug: str, test_size: float, save_path: str):
     IU = ImageUtils()
     IU.resize_db(416, 416)
     if aug == 'YES':
@@ -57,14 +65,18 @@ def train_model(epochs, device, aug, test_size, save_path):
     model.save_model(save_path)
 
 
-def evaluate_model(model_path, metrics, img_path):
+## Function responsible for model evaluate
+# @param model_path path to model
+# @param metrics yes or no for metrics visualization
+# @param img_path path to example photo
+def evaluate_model(model_path: str, metrics: str, img_path: str):
     print("Loading model...")
     model = Yolov4(weight_path="NN/yolov4.weights",
                    class_name_path=CLASS_NAME_PATH)
 
     model.load_model(model_path)
 
-    if metrics:
+    if metrics == 'YES':
         model.export_gt(annotation_path=LABELS_PATH, gt_folder_path=gt_folder)
 
         model.export_prediction(annotation_path=str(LABELS_PATH), pred_folder_path=pred_folder,

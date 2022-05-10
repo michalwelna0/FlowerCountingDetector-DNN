@@ -1,3 +1,7 @@
+## @package helpers
+# Module responsible for handling operations on images and bounding boxes
+# It also creates augmented datas
+
 import os
 from pathlib import Path
 import numpy as np
@@ -16,14 +20,17 @@ CLASSES_PATH = Path("data/classes.txt")
 ALL_LABELS_PATH = Path("ready2learn/labels.txt")
 ALL_IMAGES_PATH = Path("ready2learn/images")
 
-
+## Class responsible for handling xml operations
 class XMLParser(object):
+    ## Class constructor that initialize class with params given in scope of file
     def __init__(self):
         self.label_path = LABEL_PATH
         self.label_path_txt = LABEL_PATH_TXT
         self.classes_path = CLASSES_PATH
         self.coords: Dict[str, List[Tuple[List[int], str]]] = self._create_annotations()
 
+    ## Function that take bounding box coordination from xml file
+    # @param path path to file with bounding box coordinates
     @staticmethod
     def _get_coord_from_xml(path: Path) -> List[Tuple[List[int], str]]:
         if path.suffix == '.xml':
@@ -38,6 +45,7 @@ class XMLParser(object):
                 coords.append([int(it.text) for it in bbox])
             return [(coord, label) for coord, label in zip(coords, labels)]
 
+    ## Function that return annotation as dictionary
     def _create_annotations(self) -> Dict[str, List[Tuple[List[int], str]]]:
         files = os.listdir(self.label_path)
         print("Creating annotation database...")
@@ -48,12 +56,14 @@ class XMLParser(object):
             dct[filepath.stem] = self._get_coord_from_xml(filepath)
         return dct
 
+    ## Function that create list of classes from file in txt
     def get_classes(self) -> List[str]:
         with open(self.classes_path) as f:
             class_names = f.readlines()
         class_names = [c.strip() for c in class_names]
         return class_names
 
+    ## Function that create txt annotation file
     def create_txt_annotation_file(self) -> None:
         with open(self.label_path_txt, 'w') as f:
             for key, coord_lists in self.coords.items():
@@ -66,11 +76,15 @@ class XMLParser(object):
                 f.write('\n')
         f.close()
 
+    ## Function that create list of coordinates from Dict
+    # @param img image name
     def get_annotation(self, img: str) -> List[List[int]]:
         return [coord for coord, _ in self.coords[img]]
 
 
+## Class responsible for operation on photos database and coordinates of bounding boxes
 class ImageUtils(object):
+    ## Class constructor that initialize class with params given in scope of file
     def __init__(self):
         self.image_path = IMAGE_PATH
         self.all_images = ALL_IMAGES_PATH
@@ -84,6 +98,8 @@ class ImageUtils(object):
         if not os.path.exists(self.all_images):
             os.makedirs(self.all_images)
 
+    ## Function that read image from given path
+    # @param path path to image
     @staticmethod
     def _read_image(path: Path) -> np.ndarray:
         if path.suffix == '.JPG':
@@ -126,7 +142,7 @@ class ImageUtils(object):
     # @param points coordinates point
     # @param angle the angle of rotation
     @staticmethod
-    def _rotate_point(points: List[List[int]], angle: float):
+    def _rotate_point(points: List[List[float]], angle: float) -> List[List[float]]:
         rot_points = []
         ox = 208
         oy = 208
@@ -141,7 +157,7 @@ class ImageUtils(object):
     ## Function that perform rotation on bounding box coordinates
     # @param boxes coordinates of bounding boxes
     # @param angle the angle of rotation
-    def _txt_rotation(self, boxes: List[List[float]], angle):
+    def _txt_rotation(self, boxes: List[List[float]], angle) -> List[List[float]]:
         for i in range(len(boxes)):
             p1 = [boxes[i][0], boxes[i][1]]
             p2 = [boxes[i][2], boxes[i][3]]
@@ -154,7 +170,7 @@ class ImageUtils(object):
     # @param boxes coordinates of bounding boxes
     # @param type_of_flip one of the flip types for cv2
     @staticmethod
-    def _txt_flip(boxes, type_of_flip):
+    def _txt_flip(boxes: List[List[float]], type_of_flip: int) -> List[List[float]]:
         ox = 208
         oy = 208
         for i in range(len(boxes)):
@@ -172,7 +188,7 @@ class ImageUtils(object):
         return boxes
 
     ## Function which takes the labels saved in txt and strip them
-    def _read_txt_to_list(self):
+    def _read_txt_to_list(self) -> List[str]:
         with open(self.parser.label_path_txt) as f:
             content = f.readlines()
         content = [x.strip() for x in content]
@@ -180,7 +196,7 @@ class ImageUtils(object):
 
     ## Function that take the database and perform randomly chosen types of data augmentation
     #  The result images are stored in the given path from constructor
-    def augment_data(self):
+    def augment_data(self) -> None:
         line = self._read_txt_to_list()
         nr_iter = 0
         list_file = open(self.label_augment, 'w')
