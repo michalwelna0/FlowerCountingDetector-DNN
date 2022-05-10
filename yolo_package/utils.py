@@ -102,15 +102,16 @@ def draw_bbox(img, detections, cmap, random_color=True, figsize=(10, 10), show_i
     for _, row in detections.iterrows():
         x1, y1, x2, y2, cls, score, w, h = row.values
         color = list(np.random.random(size=3) * 255) if random_color else cmap[cls]
-        cv2.rectangle(img, (x1, y1), (x2, y2), color, line_width)
-        if show_text:
-            text = f'{cls} {score:.2f}'
-            font = cv2.FONT_HERSHEY_DUPLEX
-            font_scale = max(0.3 * scale, 0.3)
-            thickness = max(int(1 * scale), 1)
-            (text_width, text_height) = cv2.getTextSize(text, font, fontScale=font_scale, thickness=thickness)[0]
-            cv2.rectangle(img, (x1 - line_width//2, y1 - text_height), (x1 + text_width, y1), color, cv2.FILLED)
-            cv2.putText(img, text, (x1, y1), font, font_scale, (255, 255, 255), thickness, cv2.LINE_AA)
+        if score > 0.5:
+            cv2.rectangle(img, (x1, y1), (x2, y2), color, line_width)
+            if show_text:
+                text = f'{cls} {score:.2f}'
+                font = cv2.FONT_HERSHEY_DUPLEX
+                font_scale = max(0.3 * scale, 0.3)
+                thickness = max(int(1 * scale), 1)
+                (text_width, text_height) = cv2.getTextSize(text, font, fontScale=font_scale, thickness=thickness)[0]
+                cv2.rectangle(img, (x1 - line_width//2, y1 - text_height), (x1 + text_width, y1), color, cv2.FILLED)
+                cv2.putText(img, text, (x1, y1), font, font_scale, (255, 255, 255), thickness, cv2.LINE_AA)
     if show_img:
         plt.figure(figsize=figsize)
         plt.imshow(img)

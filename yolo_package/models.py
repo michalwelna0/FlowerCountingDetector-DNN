@@ -294,6 +294,7 @@ class Yolov4(object):
                 """
                 nd = len(dr_data)
                 multiple_det = 0
+                used = 0
                 tp = [0] * nd  # creates an array of zeros of size nd
                 fp = [0] * nd
                 for idx, detection in enumerate(dr_data):
@@ -327,6 +328,7 @@ class Yolov4(object):
                             # true positive
                             tp[idx] = 1
                             gt_match["used"] = True
+                            used+=1
                             count_true_positives[class_name] += 1
                             # update the ".json" file
                             with open(gt_file, 'w') as f:
@@ -362,7 +364,8 @@ class Yolov4(object):
 
 
 
-                fn = all_gt - (tp_val + fp_val - multiple_det)
+                fn = all_gt - used
+                print(multiple_det)
                 print("True positive number = ", tp_val)
                 print("False positive number = ", fp_val)
                 print("False negative number = ", fn)

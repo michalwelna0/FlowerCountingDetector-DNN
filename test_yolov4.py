@@ -8,6 +8,8 @@ from pathlib import Path
 import argparse
 import cv2
 import os
+from yolo_package.config import yolo_config
+
 
 WEIGHTS_PATH = Path("NN/yolov4.weights")
 FOLDER_PATH = Path("ready2learn/images")
@@ -95,7 +97,7 @@ def evaluate_model(model_path: str, metrics: str, img_path: str):
         model.export_gt(annotation_path=LABELS_PATH, gt_folder_path=gt_folder)
 
         model.export_prediction(annotation_path=str(LABELS_PATH), pred_folder_path=pred_folder,
-                                img_folder_path=FOLDER_PATH, bs=5)
+                                img_folder_path=FOLDER_PATH, bs=yolo_config['batch_size'])
 
         model.eval_map(gt_folder_path="fruits_dataset/gt", pred_folder_path='fruits_dataset/pred',
                        temp_json_folder_path='fruits_dataset/temp',
