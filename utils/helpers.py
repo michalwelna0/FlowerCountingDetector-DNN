@@ -25,9 +25,13 @@ ALL_IMAGES_PATH = Path("ready2learn/images")
 class XMLParser(object):
     ## Class constructor that initialize class with params given in scope of file
     def __init__(self):
+        ## Path to labels of images in xml
         self.label_path = LABEL_PATH
+        ## Path to labels of images in txt
         self.label_path_txt = LABEL_PATH_TXT
+        ## Path to txt with class names
         self.classes_path = CLASSES_PATH
+        ## Coordination of bounding boxes as dict
         self.coords: Dict[str, List[Tuple[List[int], str]]] = self._create_annotations()
 
     ## Function that takes bounding boxes coordinations and labels from xml file and writes into list
@@ -87,12 +91,19 @@ class XMLParser(object):
 class ImageUtils(object):
     ## Class constructor that initializes class with params given in scope of file
     def __init__(self):
+        ## path to images without augmentation
         self.image_path = IMAGE_PATH
+        ## path to all images with augmentation
         self.all_images = ALL_IMAGES_PATH
+        ## path to labels of augmented images
         self.label_augment = LABELS_AUGMENTED_PATH
+        ## Path to labels for all images with and without augmentation
         self.all_labels = ALL_LABELS_PATH
+        ## Value of the last image in folder
         self.last_image_nr = 7070
+        ## Dict of images with its filenames
         self.img_database: Dict[str, np.ndarray] = self._create_db()
+        ## variable holding XMLParser class
         self.parser = XMLParser()
         if not os.path.exists(Path("ready2learn")):
             os.makedirs(Path("ready2learn"))
